@@ -4,3 +4,8 @@
 > rather than just thinking it."
 
 This is a collection of miscellaneous notes and ideas.
+
+
+# List of contents
+
+- **[Central Limit Theorem](./central_theorem_limit.ipynb)**: Idea and visual exploration of the results.
