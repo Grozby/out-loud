@@ -8,4 +8,4 @@ This is a collection of miscellaneous notes and ideas.
 
 # List of contents
 
-- **[Central Limit Theorem](./central_theorem_limit.ipynb)**: Idea and visual exploration of the results.
+- **[Central Limit Theorem](./central_limit_theorem.ipynb)**: Idea and visual exploration of the results.
