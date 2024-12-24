@@ -10,7 +10,6 @@ class State:
     cost: int
     heuristic: int
     previous_state: "State" = None
-    lead_to_goal: bool = False
 
     def __lt__(self, other):
         return self.cost + self.heuristic < other.cost + other.heuristic
