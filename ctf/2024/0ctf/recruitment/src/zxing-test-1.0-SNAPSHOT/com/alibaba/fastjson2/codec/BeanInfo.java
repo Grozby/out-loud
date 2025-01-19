@@ -1,0 +1,132 @@
+package com.alibaba.fastjson2.codec;
+
+import com.alibaba.fastjson2.JSONArray;
+import com.alibaba.fastjson2.JSONFactory;
+import com.alibaba.fastjson2.JSONObject;
+import com.alibaba.fastjson2.JSONReader;
+import com.alibaba.fastjson2.PropertyNamingStrategy;
+import com.alibaba.fastjson2.filter.Filter;
+import com.alibaba.fastjson2.reader.ObjectReaderProvider;
+import com.alibaba.fastjson2.writer.ObjectWriterProvider;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Method;
+import java.util.Locale;
+
+public class BeanInfo {
+   public String typeKey;
+   public String typeName;
+   public Class builder;
+   public Method buildMethod;
+   public String builderWithPrefix;
+   public Class[] seeAlso;
+   public String[] seeAlsoNames;
+   public Class seeAlsoDefault;
+   public Constructor creatorConstructor;
+   public Constructor markerConstructor;
+   public Method createMethod;
+   public String[] createParameterNames;
+   public long readerFeatures;
+   public long writerFeatures;
+   public boolean writeEnumAsJavaBean;
+   public String namingStrategy;
+   public String[] ignores;
+   public String[] orders;
+   public String[] includes;
+   public boolean mixIn;
+   public boolean kotlin;
+   public Class serializer;
+   public Class deserializer;
+   public Class<? extends Filter>[] serializeFilters;
+   public String schema;
+   public String format;
+   public Locale locale;
+   public boolean alphabetic = true;
+   public String objectWriterFieldName;
+   public String objectReaderFieldName;
+   public Class<? extends JSONReader.AutoTypeBeforeHandler> autoTypeBeforeHandler;
+   public String rootName;
+
+   public BeanInfo() {
+      if (JSONFactory.isDisableAutoType()) {
+         this.writerFeatures |= 576460752303423488L;
+         this.readerFeatures |= 576460752303423488L;
+      }
+
+      if (JSONFactory.isDisableReferenceDetect()) {
+         this.writerFeatures |= 144115188075855872L;
+         this.readerFeatures |= 144115188075855872L;
+      }
+
+      if (JSONFactory.isDisableJSONB()) {
+         this.writerFeatures |= 1152921504606846976L;
+         this.readerFeatures |= 1152921504606846976L;
+      }
+
+      if (JSONFactory.isDisableArrayMapping()) {
+         this.writerFeatures |= 288230376151711744L;
+         this.readerFeatures |= 288230376151711744L;
+      }
+
+      if (JSONFactory.isDisableSmartMatch()) {
+         this.readerFeatures |= 9007199254740992L;
+      }
+   }
+
+   public BeanInfo(ObjectReaderProvider provider) {
+      if (provider.isDisableAutoType()) {
+         this.readerFeatures |= 576460752303423488L;
+      }
+
+      if (provider.isDisableReferenceDetect()) {
+         this.readerFeatures |= 144115188075855872L;
+      }
+
+      if (provider.isDisableJSONB()) {
+         this.readerFeatures |= 1152921504606846976L;
+      }
+
+      if (provider.isDisableArrayMapping()) {
+         this.readerFeatures |= 288230376151711744L;
+      }
+
+      if (provider.isDisableSmartMatch()) {
+         this.readerFeatures |= 9007199254740992L;
+      }
+
+      PropertyNamingStrategy naming = provider.getNamingStrategy();
+      if (naming != null) {
+         this.namingStrategy = naming.name();
+      }
+   }
+
+   public BeanInfo(ObjectWriterProvider provider) {
+      if (provider.isDisableAutoType()) {
+         this.writerFeatures |= 576460752303423488L;
+      }
+
+      if (provider.isDisableReferenceDetect()) {
+         this.writerFeatures |= 144115188075855872L;
+      }
+
+      if (provider.isDisableJSONB()) {
+         this.writerFeatures |= 1152921504606846976L;
+      }
+
+      if (provider.isDisableArrayMapping()) {
+         this.writerFeatures |= 288230376151711744L;
+      }
+
+      this.alphabetic = provider.isAlphabetic();
+   }
+
+   public void required(String fieldName) {
+      if (this.schema == null) {
+         this.schema = JSONObject.of("required", JSONArray.of(fieldName)).toString();
+      } else {
+         JSONObject object = JSONObject.parseObject(this.schema);
+         JSONArray array = object.getJSONArray("required");
+         array.add(fieldName);
+         this.schema = object.toString();
+      }
+   }
+}

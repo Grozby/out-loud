@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="/static/pico.min.css">
+  <title>Apply | Mars Technology</title>
+  <style>
+    header {
+      margin-top: 2em;
+    }
+
+    #qrcode {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin: 2em;
+    }
+
+    article>h2,
+    form>h3 {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin-top: 1em;
+    }
+  </style>
+</head>
+
+<body>
+  <header class="container">
+    <nav>
+      <ul>
+        <hgroup>
+          <h1>Mars Technology</h1>
+          <h2>Innovating Beyond Earth, One Giant Leap at a Time.</h2>
+        </hgroup>
+      </ul>
+      <ul>
+        <li><a href="/ctf/2024/0ctf/recruitment/src/static">Home</a></li>
+        <li><a href="/apply">Apply</a></li>
+      </ul>
+    </nav>
+  </header>
+  <main class="container">
+    <article>
+      <h2>Job Application</h2>
+      <form id="form1" action="#" method="post">
+        <fieldset>
+          <label for="name">Name</label>
+          <input type="text" id="name" name="name" required>
+          <label for="gender">Gender</label>
+          <select id="gender" name="gender" required>
+            <option value="">Select Gender</option>
+            <option value="male">Male</option>
+            <option value="female">Female</option>
+            <option value="other">Other</option>
+          </select>
+          <label for="email">Email</label>
+          <input type="email" id="email" name="email" required>
+          <label for="phone">Phone</label>
+          <input type="tel" id="phone" name="phone" required>
+          <label for="languages">Top 4 Programming Languages</label>
+          <input type="text" id="language1" name="languages" placeholder="#1" required>
+          <input type="text" id="language2" name="languages" placeholder="#2" required>
+          <input type="text" id="language3" name="languages" placeholder="#3" required>
+          <input type="text" id="language4" name="languages" placeholder="#4" required>
+        </fieldset>
+        <button type="submit">Submit</button>
+      </form>
+      <form id="form2" action="/api/submit" method="post">
+        <div id="qrcode"></div>
+        <input type="text" hidden name="file" id="qrcode-image">
+        <input type="submit" value="Submit QRCode to server">
+      </form>
+    </article>
+  </main>
+  <script src="/static/jquery-3.7.1.min.js"></script>
+  <script src="/static/easy.qrcode.min.js"></script>
+  <script>
+    function allDone() {
+      $('#form1').hide();
+      $('#form2').hide();
+      $('article').append('<h3>Thank you for your application!</h3>');
+    }
+    $(document).ready(function () {
+      $('#form2').hide();
+      $('#form1').submit(function (event) {
+        event.preventDefault();
+        let data = {};
+        $(this).serializeArray().map(function (x) {
+          if (data[x.name]) {
+            if (!Array.isArray(data[x.name])) {
+              data[x.name] = [data[x.name]];
+            }
+            data[x.name].push(x.value);
+          } else {
+            data[x.name] = x.value;
+          }
+        });
+        let qr = new QRCode(document.getElementById('qrcode'), {
+          text: JSON.stringify(data),
+          width: 256,
+          height: 256,
+          correctLevel : QRCode.CorrectLevel.H
+        });
+        var canvas = document.getElementById("qrcode").getElementsByTagName("canvas")[0];
+        var image = canvas.toDataURL("image/png").replace("image/png", "image/octet-stream");
+        document.getElementById("qrcode-image").value = image;
+        $('#form1').hide();
+        $('#form2').show();
+      });
+      $('#form2').submit(function (event) {
+        event.preventDefault();
+
+        var formData = new FormData(this);
+        fetch(this.action, {
+            method: this.method,
+            body: formData
+        })
+        allDone();
+      })
+    });
+  </script>
+</body>
+
+</html>

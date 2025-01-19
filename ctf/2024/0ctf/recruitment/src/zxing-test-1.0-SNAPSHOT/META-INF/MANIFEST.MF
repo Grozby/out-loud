@@ -1,0 +1,9 @@
+Manifest-Version: 1.0
+Archiver-Version: Plexus Archiver
+Created-By: Apache Maven 3.8.1
+Built-By: hikari
+Build-Jdk: 17.0.5
+Class-Path: lib/core-3.5.3.jar lib/javase-3.5.3.jar lib/jcommander-1.82.
+ jar lib/jai-imageio-core-1.4.0.jar lib/fastjson2-2.0.53.jar
+Main-Class: com.example.zxingtest.ZXingApplication
+

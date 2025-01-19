@@ -1,0 +1,8 @@
+services:
+  flask:
+    build: .
+    environment:
+      FLAG: "0ops{test}"
+    ports:
+      - 8080:8080
+    restart: unless-stopped
