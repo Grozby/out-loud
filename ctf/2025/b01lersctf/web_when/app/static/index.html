@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8" />
+		<title>Let's Go Gambling</title>
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<link rel="stylesheet" href="/index.css" />
+	</head>
+
+	<body>
+		<audio id="audio_open" src="assets/open.wav"></audio>
+		<audio id="audio_win" src="assets/win.wav"></audio>
+		<audio id="audio_aw" src="assets/aw.wav"></audio>
+		<audio id="audio_click0" src="assets/click.wav"></audio>
+		<audio id="audio_click1" src="assets/click.wav"></audio>
+		<audio id="audio_click2" src="assets/click.wav"></audio>
+		<div id="container">
+			<div id="men">
+				<img id="neutral" src="assets/neutral.gif">
+				<img id="anger" src="assets/anger.gif" style="display: none">
+				<img id="press" src="assets/press.gif" style="display: none">
+				<img id="jump" src="assets/jump.gif" style="display: none">
+			</div>
+			<img id="box" src="assets/box.png">
+			<div id="slots">
+				<img src="assets/slot_fail.png">
+				<img src="assets/slot_fail.png">
+				<img src="assets/slot_fail.png">
+				<img src="assets/slot_fail.png">
+				<img src="assets/slot_fail.png">
+				<img src="assets/slot_fail.png">
+				<img src="assets/slot_fail.png">
+				<img src="assets/slot_fail.png">
+				<img src="assets/slot_fail.png">
+				<img src="assets/slot_fail.png">
+				<img src="assets/slot_fail.png">
+				<img src="assets/slot_fail.png">
+				<img src="assets/slot_fail.png">
+				<img src="assets/slot_fail.png">
+				<img src="assets/slot_fail.png">
+				<img src="assets/slot_fail.png">
+			</div>
+		</div>
+		<div id="tip">click anywhere to gamble</div>
+		<div id="result"></div>
+		<script>
+			const $ = (a) => document.getElementById(a)
+			let firstTime = true
+			let isGambling = false
+
+			// preload images
+			const imgBlobs = new Array(3).fill(null)
+			const assets = ["assets/slot_fail.png", "assets/slot_flag.png", "assets/slot_spin.gif"]
+			for (let i = 0; i < assets.length; i++) {
+				fetch(assets[i])
+					.then(res => res.blob())
+					.then(blob => {
+						imgBlobs[i] = URL.createObjectURL(blob)
+					})
+			}
+
+			async function sleep(time) {
+				return new Promise((res, rej) => {
+					setTimeout(() => res(), time)
+				})
+			}
+
+			function createCoin(y, yv) {
+				const coin = document.createElement("img")
+				coin.src = "assets/coin.gif"
+				coin.style.position = "absolute"
+				coin.style.transform = `scale(${Math.random() * 0.5 + 0.5})`
+				let coinY = y
+				let coinX = Math.random() * (document.body.clientWidth + 400) - 200
+				let xv = (Math.random() - 0.5) * 10
+				coin.style.left =`${coinX}px`
+				coin.style.top = `${coinY}px`
+				document.body.appendChild(coin)
+				let update = setInterval(() => {
+					coin.style.left =`${coinX}px`
+					coin.style.top = `${coinY}px`
+					coinX += xv
+					coinY += yv
+					yv += 0.5 * Math.random()
+					if (coinY > document.body.clientHeight + 500) {
+						coin.remove()
+						clearInterval(update)
+					}
+				}, 30)
+			}
+
+			async function gamble() {
+				if (isGambling) {
+					return
+				}
+				isGambling = true
+				$("tip").style.transform = "scale(2, 0)"
+				$("neutral").style.display = ""
+				$("anger").style.display = "none"
+				$("press").style.display = "none"
+				$("jump").style.display = "none"
+				const data = await fetch("/gamble", { method: "POST"})
+					.then(body => body.json())
+					.catch(err => {
+						isGambling = false
+						$("result").innerText = "too much gambling! please wait a bit"
+						return
+					})
+				if (!data) return
+				if (!data?.success) {
+					isGambling = false
+					$("result").innerText = data.error
+					throw data.error
+				}
+				for (let i = 0; i < 16; i++) {
+					$("slots").children[i].src = imgBlobs[2]
+				}
+				if (firstTime) {
+					$("audio_open").play()
+					await sleep(1465)
+					firstTime = false
+				}
+				$("neutral").style.display = "none"
+				$("press").style.display = ""
+				for (let i = 0; i < 16; i++) {
+					$("audio_click" + i % 3).play()
+					$("slots").children[i].src = data.result[i] == "1" ? imgBlobs[1] : imgBlobs[0]
+					await sleep(100)
+				}
+
+				if (data.flag !== undefined) {
+					// you got lucky!
+					document.body.classList.add("win")
+					$("audio_win").play()
+					$("result").innerText = data.flag
+					for (let i = 0; i < 150; i++) {
+						createCoin(-200 - Math.random() * document.body.clientHeight, Math.random() * -5)
+					}
+					for (let i = 0; i < 150; i++) {
+						createCoin(document.body.clientHeight + 200 + Math.random() * document.body.clientHeight, -20 + Math.random() * -20)
+					}
+					await sleep(2640)
+					document.body.classList.remove("win")
+				} else {
+					// better luck next time
+					$("audio_aw").play()
+					$("press").style.display = "none"
+					$("anger").style.display = ""
+					await sleep(426)
+					$("anger").style.display = "none"
+					$("jump").style.display = ""
+					await sleep(636)
+					$("jump").style.display = "none"
+					$("neutral").style.display = ""
+				}
+				isGambling = false
+			}
+			document.addEventListener("mousedown", gamble)
+		</script>
+	</body>
+</html>
