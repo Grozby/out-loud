@@ -1,0 +1,1 @@
+For a full solution, check the rust script in solve_seed.
